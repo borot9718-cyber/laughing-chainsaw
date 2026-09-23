@@ -1,0 +1,34 @@
+KOVA — structure corrigée pour htdocs
+
+DOCUMENT ROOT
+- Le contenu de ce dossier doit être placé directement dans htdocs/ chez InfinityFree.
+
+FICHIERS PUBLICS
+- assets/css/kova.css
+- assets/js/kova.js
+- assets/images/*
+- manifest.webmanifest
+- sw.js
+
+FICHIERS PHP INTERNES
+- app/Core/*
+- bootstrap/app.php
+- resources/views/*
+- vendor/phpmailer/*
+- storage/json/*
+
+ROUTAGE
+- /api/* est envoyé vers index.php.
+- /app est envoyé vers index.php?route=app pour éviter le conflit avec le dossier physique app/.
+- Le JavaScript utilise les URLs /api/* et possède un fallback index.php?route=api/... si l'hébergement renvoie un 404 HTML.
+
+IMPORTANT
+- Ne pas déplacer assets/ dans public/ : ce projet sert les assets directement depuis htdocs/assets/.
+- Conserver .env à la racine de htdocs et ne jamais le rendre public.
+- Après déploiement, supprimer ou protéger les fichiers de diagnostic kova-check.php et api-test.php.
+
+--- VERSION FINALE 2026-09-18 ---
+- i.php fonctionne via le navigateur et utilise __DIR__ pour le logo.
+- /robots.txt et /sitemap.xml sont routés vers l'application.
+- Déconnexion : API POST avec repli serveur GET.
+- Les fichiers de test temporaires ne sont pas inclus dans le paquet de production.

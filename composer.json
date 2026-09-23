@@ -1,0 +1,8 @@
+{
+  "name": "kova/platform",
+  "description": "KOVA social platform",
+  "type": "project",
+  "require": {
+    "php": ">=8.1"
+  }
+}

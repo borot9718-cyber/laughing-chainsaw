@@ -1,0 +1,12 @@
+{
+  "name":"KOVA",
+  "short_name":"KOVA",
+  "start_url":"/app",
+  "display":"standalone",
+  "background_color":"#f5f7fb",
+  "theme_color":"#0b1020",
+  "description":"KOVA, un espace social moderne.",
+  "icons":[
+    {"src":"/assets/images/kova-logo.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}

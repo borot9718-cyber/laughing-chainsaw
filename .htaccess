@@ -1,0 +1,97 @@
+Options -Indexes
+Options -MultiViews
+
+RewriteEngine On
+
+# Transmet l'en-tête Authorization à PHP (jetons Bearer OAuth sur hébergement mutualisé)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# ============================================================
+# TYPES MIME EXPLICITES (sécurité contre les configurations
+# d'hébergeur qui ne connaissent pas .svg/.webmanifest par défaut,
+# ce qui peut faire échouer le chargement du CSS/logo/PWA)
+# ============================================================
+<IfModule mod_mime.c>
+    AddType image/svg+xml .svg
+    AddType application/manifest+json .webmanifest
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType application/json .json
+</IfModule>
+
+# ============================================================
+# ROUTES DYNAMIQUES KOVA
+# ============================================================
+# Important : /app est aussi le nom d'un dossier PHP interne.
+# On force donc cette URL vers index.php avec la route explicite.
+RewriteRule ^app/?$ index.php?route=app [L,QSA]
+
+# Administration : URL publique claire /admin/ -> route admin.
+# Le contrôle du rôle administrateur reste effectué côté PHP.
+RewriteRule ^admin/?$ index.php?route=admin [L,QSA]
+RewriteRule ^admin/maintenance/?$ index.php?route=admin/maintenance [L,QSA]
+
+# API : /api/... -> index.php. Le routeur PHP reçoit api/....
+RewriteRule ^api(?:/.*)?$ index.php [L,QSA]
+
+# URLs techniques standard
+RewriteRule ^robots\.txt$ index.php?route=robots.txt [L,QSA]
+RewriteRule ^sitemap\.xml$ index.php?route=sitemap.xml [L,QSA]
+
+# ============================================================
+# PROTECTION DES FICHIERS INTERNES
+# (syntaxe Apache 2.4 — cohérente avec storage/json/.htaccess
+# et uploads/.htaccess, qui utilisent déjà "Require all denied")
+# ============================================================
+<Files ".env">
+    Require all denied
+</Files>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(json|log|md|txt|sh|lock)$">
+    Require all denied
+</FilesMatch>
+
+# robots.txt est un fichier VIRTUEL servi par PHP (RewriteRule ci-dessus) : sans cette exception, la règle
+# « .txt » ci-dessus le bloquait (403) avant même la réécriture et les moteurs de recherche ne le lisaient pas.
+<Files "robots.txt">
+    Require all granted
+</Files>
+
+RewriteRule ^storage(?:/|$) - [F,L]
+RewriteRule ^vendor(?:/|$) - [F,L]
+RewriteRule ^bootstrap(?:/|$) - [F,L]
+RewriteRule ^app/ - [F,L]
+RewriteRule ^resources(?:/|$) - [F,L]
+RewriteRule ^tools(?:/|$) - [F,L]
+RewriteRule ^tests(?:/|$) - [F,L]
+RewriteRule ^(?:\.git|\.github|backups?)(?:/|$) - [F,L]
+RewriteRule ^(?:uploads|storage)(?:/|$).*\.php$ - [F,L,NC]
+
+# ============================================================
+# FICHIERS PUBLICS PHYSIQUEMENT PRESENTS DANS htdocs
+# ============================================================
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# ============================================================
+# TOUT LE RESTE -> index.php
+# ============================================================
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]
+
+
+# En-têtes de sécurité de base (sans écraser ceux posés par PHP, ex. page de consentement OAuth)
+<IfModule mod_headers.c>
+    Header setIfEmpty X-Content-Type-Options "nosniff"
+    Header setIfEmpty Referrer-Policy "strict-origin-when-cross-origin"
+    Header setIfEmpty X-Frame-Options "SAMEORIGIN"
+    Header setIfEmpty Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+    Header setIfEmpty Cross-Origin-Opener-Policy "same-origin"
+    Header setIfEmpty Cross-Origin-Resource-Policy "same-origin"
+</IfModule>

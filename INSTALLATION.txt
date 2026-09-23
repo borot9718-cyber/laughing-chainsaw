@@ -1,0 +1,23 @@
+KOVA — INSTALLATION RAPIDE
+
+1. Téléverser tous les fichiers à la racine du domaine.
+2. Copier .env.example en .env.
+3. Modifier APP_URL, APP_KEY et les paramètres Cloudinary/SMTP.
+4. Vérifier PHP 8.1 ou supérieur.
+5. Pour conserver le fonctionnement historique, le mode JSON reste actif tant que STORAGE_DRIVER n’est pas changé.
+6. Renseigner les identifiants SQL dans .env, mettre STORAGE_DRIVER=database, puis lancer :
+   php tools/migrate-json-to-database.php --execute
+   Le script crée la table kova_records et ne supprime jamais les JSON sources.
+7. Vérifier que storage/ est accessible en écriture (clé applicative, journaux et journaux de migration).
+8. Laisser APP_DEBUG=true pendant les tests.
+9. Tester :
+   /health
+   /debug/assets
+   /inscription
+10. Quand tout fonctionne, passer APP_DEBUG=false.
+
+IMPORTANT :
+- Ne pas publier .env.
+- Ne pas publier de mot de passe SMTP.
+- Ne pas publier la clé API secrète Cloudinary.
+- Ne pas conserver le mode debug actif sur la production définitive.
