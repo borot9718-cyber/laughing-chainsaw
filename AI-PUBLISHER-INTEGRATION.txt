@@ -1,0 +1,11 @@
+KOVA — INTÉGRATION DU SITE IA
+
+1. Dans Administration > Passerelle IA, activez la passerelle, définissez le style, l’idée de base, les consignes, le nombre de publications par jour et les heures.
+2. Cliquez sur « Créer / renouveler le jeton » et copiez le jeton une seule fois dans la configuration privée du site IA.
+3. Sur le site IA, saisissez l’URL publique de KOVA et ce jeton. Le bouton de connexion vérifie la passerelle.
+4. Générez un brouillon texte + image, puis publiez-le immédiatement ou donnez une date ISO future pour le planifier.
+5. La section « Planification des publications IA » de l’administration permet de voir et d’annuler les publications futures.
+6. Ajoutez une tâche cron sur KOVA pour maintenir publication_status à jour :
+   */5 * * * * cd /chemin/vers/htdocs && php tools/publish-scheduled.php >> storage/scheduler.log 2>&1
+
+Le mode historique JSON reste disponible tant que STORAGE_DRIVER=json. Pour SQL, copiez .env.example vers .env, renseignez DB_*, activez STORAGE_DRIVER=database puis lancez tools/migrate-json-to-database.php --execute. Les JSON ne sont jamais supprimés.
